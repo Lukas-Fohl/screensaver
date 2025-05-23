@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <locale.h>
 
@@ -22,16 +23,17 @@ void printCube(cube cubeIn){
     if(cubeIn.posX < 0 || cubeIn.posY < 0 || cubeIn.posX + cubeIn.width > MAX_X-1 || cubeIn.posY + cubeIn.height > MAX_Y-1){
         return;
     }
+
     for(int i = 0; i < cubeIn.width; i++){
         mvaddch(cubeIn.posY, cubeIn.posX + i, ACS_HLINE); // ━
-
         mvaddch(cubeIn.posY + cubeIn.height, cubeIn.posX + i, ACS_HLINE); // ━
     }
+
     for(int i = 0; i < cubeIn.height; i++){
         mvaddch(cubeIn.posY + i, cubeIn.posX, ACS_VLINE); // ┃
-
         mvaddch(cubeIn.posY + i, cubeIn.posX + cubeIn.width, ACS_VLINE); // ┃
     }
+
     mvaddch(cubeIn.posY, cubeIn.posX, ACS_ULCORNER);  // ┏
     mvaddch(cubeIn.posY, cubeIn.posX + cubeIn.width, ACS_URCORNER);  // ┓
     mvaddch(cubeIn.posY + cubeIn.height, cubeIn.posX, ACS_LLCORNER);  // ┗
@@ -43,7 +45,6 @@ int main(){
 
     /*SETUP*/
 
-    setlocale(LC_ALL, "");
     WINDOW* MAIN_WINDOW = initscr();
     keypad(stdscr, TRUE);
     start_color();
@@ -73,26 +74,25 @@ int main(){
             main();
             break;
         }
+
         //x
-        if(tempCube.posX+tempCube.width+tempCube.veloX > MAX_X){
+        if(tempCube.posX+tempCube.width+tempCube.veloX >= MAX_X){
             tempCube.veloX = -tempCube.veloX;
-        }
-        if(tempCube.posX+tempCube.veloX < 0){
+        } else if(tempCube.posX+tempCube.veloX < 0){
             tempCube.veloX = -tempCube.veloX;
+        } else {
+            tempCube.posX += tempCube.veloX;
         }
 
         //y
-        if(tempCube.posY+tempCube.height+tempCube.veloY > MAX_Y){
+        if(tempCube.posY+tempCube.height+tempCube.veloY >= MAX_Y){
             tempCube.veloY = -tempCube.veloY;
-        }
-        if(tempCube.posY+tempCube.veloY < 0){
+        } else if(tempCube.posY+tempCube.veloY < 0){
             tempCube.veloY = -tempCube.veloY;
+        } else {
+            tempCube.posY += tempCube.veloY;
         }
 
-        tempCube.posX += tempCube.veloX;
-        tempCube.posY += tempCube.veloY;
-
-        //erase();
         printCube(tempCube);
         refresh();
         usleep(16000);
